@@ -1,0 +1,500 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+:root {
+    --primary: #4F46E5;  /* Vibrant indigo */
+    --primary-light: #818CF8;
+    --primary-dark: #3730A3;
+    --secondary: #10B981; /* Emerald green */
+    --accent: #F59E0B;   /* Amber */
+    --danger: #EF4444;   /* Red */
+    --text: #1F2937;     /* Gray-800 */
+    --text-light: #6B7280;
+    --bg-gradient: linear-gradient(135deg, #F0FDF4 0%, #F0F9FF 100%);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --border: rgba(209, 213, 219, 0.5);
+    --chat-user: #4F46E5;
+    --chat-ai: #10B981;
+}
+
+body {
+    background: var(--bg-gradient);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text);
+}
+
+/* Glassmorphism Chat Container */
+.chat-container {
+    max-width: 1300px;
+    margin: 2rem auto;
+    background: var(--card-bg);
+    border-radius: 24px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(31, 41, 55, 0.1);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.chat-header {
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-header h2 {
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+}
+
+.chat-header-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+/* Chat Area */
+#chat-box {
+    height: 500px;
+    padding: 1.5rem;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    background: rgba(249, 250, 251, 0.7);
+}
+
+/* Message Bubbles */
+.message {
+    max-width: 75%;
+    padding: 0.875rem 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: 18px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    animation: fadeIn 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.user-message {
+    background: var(--chat-user);
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+}
+
+.ai-message {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    margin-right: auto;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+}
+
+.ai-message b {
+    color: var(--primary-dark);
+}
+
+/* Input Area */
+.chat-controls {
+    padding: 1.5rem;
+    background: var(--card-bg);
+    border-top: 1px solid var(--border);
+}
+
+.input-group {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+#category {
+    flex: 0 0 180px;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    font-size: 0.95rem;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+}
+
+#user-input {
+    flex: 1;
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+#user-input:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.btn {
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: var(--text-light);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: var(--text);
+    transform: translateY(-1px);
+}
+
+.btn-accent {
+    background: var(--accent);
+    color: white;
+}
+
+.btn-accent:hover {
+    background: #D97706;
+    transform: translateY(-1px);
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #DC2626;
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    background: var(--secondary);
+    color: white;
+}
+
+.btn-success:hover {
+    background: #059669;
+    transform: translateY(-1px);
+}
+
+/* Suggestions */
+.suggestions-container {
+    margin-top: 1rem;
+}
+
+.suggestion-btn {
+    padding: 0.5rem 1rem;
+    margin: 0.25rem;
+    border-radius: 20px;
+    background: rgba(79, 70, 229, 0.1);
+    color: var(--primary-dark);
+    border: none;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0;
+    transform: translateY(5px);
+}
+
+.suggestion-btn.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.suggestion-btn:hover {
+    background: rgba(79, 70, 229, 0.2);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.typing-indicator {
+    display: inline-flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    background: var(--primary);
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .chat-container {
+        margin: 1rem;
+        border-radius: 16px;
+    }
+
+    #chat-box {
+        height: 400px;
+        padding: 1rem;
+    }
+
+    .input-group {
+        flex-direction: column;
+    }
+
+    #category {
+        flex: 1;
+        width: 100%;
+    }
+
+    .action-buttons {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+</style>
+
+<div class="chat-container">
+    <div class="chat-header">
+        <h2><i class="bi bi-robot"></i> AI Health Assistant</h2>
+        <div class="chat-header-actions">
+            <button class="btn btn-secondary" onclick="clearChat()">
+                <i class="bi bi-trash"></i> Clear
+            </button>
+            <a href="/export_pdf" class="btn btn-accent">
+                <i class="bi bi-download"></i> Export
+            </a>
+        </div>
+    </div>
+
+    <div id="chat-box"></div>
+
+    <div class="chat-controls">
+        <div class="input-group">
+            <select id="category" class="form-select">
+                <option value="General Advice">General Advice</option>
+                <option value="Symptoms">Symptoms</option>
+                <option value="Diet">Diet & Nutrition</option>
+                <option value="Exercise">Fitness</option>
+                <option value="Mental Health">Mental Wellbeing</option>
+            </select>
+            <input type="text" id="user-input" placeholder="Ask your health question...">
+            <button class="btn btn-primary" onclick="sendMessage()">
+                <i class="bi bi-send-fill"></i> Send
+            </button>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-danger" onclick="stopTyping()">
+                <i class="bi bi-pause-fill"></i> Stop
+            </button>
+            <button class="btn btn-success" onclick="resumeTyping()">
+                <i class="bi bi-play-fill"></i> Resume
+            </button>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<script>
+let typing = false, stopFlag = false, chatText = "", chatIndex = 0, typingTimeout = null;
+
+async function sendMessage(message = null) {
+    let category = document.getElementById("category").value;
+    let userMessage = message || document.getElementById("user-input").value;
+    if (!userMessage) return;
+
+    let chatBox = document.getElementById("chat-box");
+    chatBox.innerHTML += `<div class='message user-message'><b>You:</b> ${userMessage}</div>`;
+    document.getElementById("user-input").value = "";
+
+    stopFlag = false;
+    typing = true;
+    chatIndex = 0;
+
+    // Show typing indicator
+    chatBox.innerHTML += `
+        <div class="message ai-message">
+            <b>AI:</b> <span class="typing-indicator">
+                <span></span><span></span><span></span>
+            </span>
+        </div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    let aiDiv = chatBox.lastElementChild;
+
+    try {
+        let res = await fetch("/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ category: category, message: userMessage })
+        });
+        let data = await res.json();
+
+        // Remove typing indicator
+        aiDiv.innerHTML = `<b>AI:</b> `;
+
+        if (data.reply) {
+            chatText = data.reply;
+            typeWriter(aiDiv, () => addFollowUpSuggestions(aiDiv));
+        } else {
+            aiDiv.innerHTML += `<span style="color: var(--danger)">Error: ${data.error || "Unknown error occurred"}</span>`;
+            typing = false;
+        }
+    } catch (error) {
+        aiDiv.innerHTML = `<div class='message ai-message' style="color: var(--danger)"><b>Error:</b> Connection failed. Please try again.</div>`;
+        typing = false;
+    }
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function typeWriter(container, callback) {
+    if (stopFlag) {
+        container.innerHTML += " ...[stopped]";
+        typing = false;
+        return;
+    }
+    if (chatIndex < chatText.length) {
+        container.innerHTML = "<b>AI:</b> " + marked.parse(chatText.substring(0, chatIndex));
+        chatIndex++;
+        typingTimeout = setTimeout(() => typeWriter(container, callback), 10);
+    } else {
+        typing = false;
+        if (callback) callback();
+    }
+}
+
+function stopTyping() {
+    if (typing) {
+        stopFlag = true;
+        clearTimeout(typingTimeout);
+    }
+}
+
+function resumeTyping() {
+    if (!typing && chatIndex < chatText.length) {
+        stopFlag = false;
+        typing = true;
+        let chatBox = document.getElementById("chat-box");
+        let aiDiv = chatBox.lastElementChild;
+        typeWriter(aiDiv, () => addFollowUpSuggestions(aiDiv));
+    }
+}
+
+async function addFollowUpSuggestions(container) {
+    try {
+        // Example suggestions - in a real app you might fetch these from your backend
+        const suggestions = [
+            "What are common symptoms of this condition?",
+            "Are there any home remedies I can try?",
+            "When should I see a doctor about this?",
+            "What foods should I avoid with this issue?"
+        ];
+
+        if (suggestions.length > 0) {
+            const sugDiv = document.createElement("div");
+            sugDiv.className = "suggestions-container";
+            sugDiv.innerHTML = '<small style="color: var(--text-light)">Suggested follow-ups:</small>';
+
+            suggestions.forEach((s, i) => {
+                let btn = document.createElement("button");
+                btn.className = "suggestion-btn";
+                btn.innerText = s;
+                btn.onclick = () => sendMessage(s);
+                sugDiv.appendChild(btn);
+                setTimeout(() => btn.classList.add("show"), 100 * i);
+            });
+
+            container.appendChild(sugDiv);
+            container.scrollIntoView({ behavior: "smooth" });
+        }
+    } catch (e) {
+        console.error("Error with suggestions:", e);
+    }
+}
+
+function clearChat() {
+    if (confirm("Are you sure you want to clear the chat history?")) {
+        document.getElementById("chat-box").innerHTML = "";
+        chatText = "";
+        chatIndex = 0;
+        stopFlag = false;
+        typing = false;
+    }
+}
+
+// Load previous chats on page load
+window.onload = function() {
+    let chatBox = document.getElementById("chat-box");
+    {% for chat in chats %}
+        chatBox.innerHTML += `<div class="message user-message"><b>You:</b> {{ chat.user_message|tojson }}</div>`;
+        chatBox.innerHTML += `<div class="message ai-message">${marked.parse({{ chat.ai_response|tojson }})}</div>`;
+    {% endfor %}
+
+    // Scroll to bottom
+    setTimeout(() => {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }, 100);
+};
+
+// Send message on Enter key
+document.getElementById("user-input").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        sendMessage();
+    }
+});
+</script>
+
+{% endblock %}

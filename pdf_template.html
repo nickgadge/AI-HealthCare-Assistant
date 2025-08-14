@@ -1,0 +1,22 @@
+from flask import request, send_file
+from io import BytesIO
+from fpdf import FPDF
+
+@app.route("/export_pdf", methods=["POST"])
+def export_pdf():
+    data = request.get_json()
+    messages = data.get("messages", [])
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.set_font("Arial", size=12)
+
+    for msg in messages:
+        pdf.multi_cell(0, 8, txt=msg)
+        pdf.ln(2)
+
+    buffer = BytesIO()
+    pdf.output(buffer)
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name="chat_history.pdf", mimetype="application/pdf")

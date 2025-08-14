@@ -1,0 +1,535 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+:root {
+    --primary: #4F46E5;
+    --primary-light: #818CF8;
+    --primary-dark: #3730A3;
+    --secondary: #10B981;
+    --accent: #F59E0B;
+    --danger: #EF4444;
+    --text: #1F2937;
+    --text-light: #6B7280;
+    --bg-gradient: linear-gradient(135deg, #F0FDF4 0%, #F0F9FF 100%);
+    --card-bg: rgba(255, 255, 255, 0.98);
+    --border: rgba(209, 213, 219, 0.3);
+    --chat-user: #4F46E5;
+    --chat-ai: #10B981;
+}
+
+.symptom-container {
+    max-width: 1300px;
+    margin: 2rem auto;
+    background: var(--card-bg);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(31, 41, 55, 0.1);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.symptom-header {
+    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.symptom-header h2 {
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+}
+
+.symptom-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+/* Symptom Selection Grid */
+.symptom-grid {
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.symptom-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: white;
+}
+
+.symptom-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+}
+
+.symptom-card input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.symptom-card label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+.symptom-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    color: var(--primary);
+}
+
+.symptom-name {
+    font-weight: 500;
+    color: var(--text);
+}
+
+.symptom-card input:checked + label {
+    background: rgba(79, 70, 229, 0.05);
+    border: 2px solid var(--primary-light);
+}
+
+.symptom-card input:checked + label .symptom-icon {
+    color: var(--primary-dark);
+}
+
+/* Chat Area */
+#symptom-chat-box {
+    height: 400px;
+    padding: 1.5rem;
+    overflow-y: auto;
+    background: rgba(249, 250, 251, 0.7);
+    scroll-behavior: smooth;
+}
+
+.message {
+    max-width: 75%;
+    padding: 0.875rem 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: 18px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    animation: fadeIn 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    position: relative;
+}
+
+.user-message {
+    background: var(--chat-user);
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.1);
+}
+
+.ai-message {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    margin-right: auto;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+}
+
+.ai-message b {
+    color: var(--primary-dark);
+}
+
+/* Controls */
+.symptom-controls {
+    padding: 1.5rem;
+    background: var(--card-bg);
+    border-top: 1px solid var(--border);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #DC2626;
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    background: var(--secondary);
+    color: white;
+}
+
+.btn-success:hover {
+    background: #059669;
+    transform: translateY(-1px);
+}
+
+/* Suggestions */
+.suggestions-container {
+    margin-top: 1rem;
+}
+
+.suggestion-btn {
+    padding: 0.5rem 1rem;
+    margin: 0.25rem;
+    border-radius: 20px;
+    background: rgba(79, 70, 229, 0.1);
+    color: var(--primary-dark);
+    border: none;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0;
+    transform: translateY(5px);
+}
+
+.suggestion-btn.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.suggestion-btn:hover {
+    background: rgba(79, 70, 229, 0.2);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.typing-indicator {
+    display: inline-flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    background: var(--primary);
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .symptom-container {
+        margin: 1rem;
+        border-radius: 16px;
+    }
+
+    .symptom-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+
+    #symptom-chat-box {
+        height: 350px;
+        padding: 1rem;
+    }
+
+    .action-buttons {
+        flex-wrap: wrap;
+    }
+}
+</style>
+
+<div class="symptom-container">
+    <div class="symptom-header">
+        <h2><i class="bi bi-clipboard2-pulse"></i> Symptom Checker</h2>
+        <div class="symptom-actions">
+            <button class="btn btn-danger" onclick="stopTyping()">
+                <i class="bi bi-pause-fill"></i> Stop
+            </button>
+            <button class="btn btn-success" onclick="resumeTyping()">
+                <i class="bi bi-play-fill"></i> Resume
+            </button>
+        </div>
+    </div>
+
+    <div class="symptom-grid">
+        <div class="symptom-card">
+            <input type="checkbox" id="fever" class="symptom-checkbox" value="Fever">
+            <label for="fever">
+                <i class="bi bi-thermometer-sun symptom-icon"></i>
+                <span class="symptom-name">Fever</span>
+            </label>
+        </div>
+
+        <div class="symptom-card">
+            <input type="checkbox" id="cough" class="symptom-checkbox" value="Cough">
+            <label for="cough">
+                <i class="bi bi-lungs symptom-icon"></i>
+                <span class="symptom-name">Cough</span>
+            </label>
+        </div>
+
+        <div class="symptom-card">
+            <input type="checkbox" id="headache" class="symptom-checkbox" value="Headache">
+            <label for="headache">
+                <i class="bi bi-emoji-dizzy symptom-icon"></i>
+                <span class="symptom-name">Headache</span>
+            </label>
+        </div>
+
+        <div class="symptom-card">
+            <input type="checkbox" id="fatigue" class="symptom-checkbox" value="Fatigue">
+            <label for="fatigue">
+                <i class="bi bi-moon symptom-icon"></i>
+                <span class="symptom-name">Fatigue</span>
+            </label>
+        </div>
+
+        <div class="symptom-card">
+            <input type="checkbox" id="nausea" class="symptom-checkbox" value="Nausea">
+            <label for="nausea">
+                <i class="bi bi-emoji-frown symptom-icon"></i>
+                <span class="symptom-name">Nausea</span>
+            </label>
+        </div>
+
+        <div class="symptom-card">
+            <input type="checkbox" id="dizziness" class="symptom-checkbox" value="Dizziness">
+            <label for="dizziness">
+                <i class="bi bi-arrow-repeat symptom-icon"></i>
+                <span class="symptom-name">Dizziness</span>
+            </label>
+        </div>
+
+        <div class="symptom-card">
+            <input type="checkbox" id="sore-throat" class="symptom-checkbox" value="Sore Throat">
+            <label for="sore-throat">
+                <i class="bi bi-mic symptom-icon"></i>
+                <span class="symptom-name">Sore Throat</span>
+            </label>
+        </div>
+
+        <div class="symptom-card">
+            <input type="checkbox" id="shortness-breath" class="symptom-checkbox" value="Shortness of Breath">
+            <label for="shortness-breath">
+                <i class="bi bi-wind symptom-icon"></i>
+                <span class="symptom-name">Breath</span>
+            </label>
+        </div>
+    </div>
+
+    <div id="symptom-chat-box"></div>
+
+    <div class="symptom-controls">
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="checkSymptoms()">
+                <i class="bi bi-check-circle-fill"></i> Analyze Symptoms
+            </button>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<script>
+let typing = false, stopFlag = false, chatText = "", chatIndex = 0, typingTimeout = null;
+
+function getSelectedSymptoms() {
+    let selected = [];
+    document.querySelectorAll(".symptom-checkbox:checked").forEach(cb => selected.push(cb.value));
+    return selected.join(", ");
+}
+
+async function checkSymptoms() {
+    let symptoms = getSelectedSymptoms();
+    if (!symptoms) return alert("Please select at least one symptom");
+
+    let chatBox = document.getElementById("symptom-chat-box");
+    chatBox.innerHTML += `<div class='message user-message'><b>You:</b> ${symptoms}</div>`;
+
+    stopFlag = false;
+    typing = true;
+    chatIndex = 0;
+
+    // Show typing indicator
+    chatBox.innerHTML += `
+        <div class="message ai-message">
+            <b>AI:</b> <span class="typing-indicator">
+                <span></span><span></span><span></span>
+            </span>
+        </div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    let aiDiv = chatBox.lastElementChild;
+
+    try {
+        let res = await fetch("/check_symptoms", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ symptoms: symptoms })
+        });
+        let data = await res.json();
+
+        // Remove typing indicator
+        aiDiv.innerHTML = `<b>AI:</b> `;
+
+        if (data.reply) {
+            chatText = data.reply;
+            typeWriter(aiDiv, () => addFollowUpSuggestions(aiDiv));
+        } else {
+            aiDiv.innerHTML += `<span style="color: var(--danger)">Error: ${data.error || "Unknown error occurred"}</span>`;
+            typing = false;
+        }
+    } catch (error) {
+        aiDiv.innerHTML = `<div class='message ai-message' style="color: var(--danger)"><b>Error:</b> Connection failed. Please try again.</div>`;
+        typing = false;
+    }
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function typeWriter(container, callback) {
+    if (stopFlag) {
+        container.innerHTML += " ...[stopped]";
+        typing = false;
+        return;
+    }
+    if (chatIndex < chatText.length) {
+        container.innerHTML = "<b>AI:</b> " + marked.parse(chatText.substring(0, chatIndex));
+        chatIndex++;
+        typingTimeout = setTimeout(() => typeWriter(container, callback), 10);
+    } else {
+        typing = false;
+        if (callback) callback();
+    }
+}
+
+function stopTyping() {
+    if (typing) {
+        stopFlag = true;
+        clearTimeout(typingTimeout);
+    }
+}
+
+function resumeTyping() {
+    if (!typing && chatIndex < chatText.length) {
+        stopFlag = false;
+        typing = true;
+        let chatBox = document.getElementById("symptom-chat-box");
+        let aiDiv = chatBox.lastElementChild;
+        typeWriter(aiDiv, () => addFollowUpSuggestions(aiDiv));
+    }
+}
+
+async function addFollowUpSuggestions(container) {
+    try {
+        // Example suggestions - in a real app you might fetch these from your backend
+        const suggestions = [
+            "What are possible causes?",
+            "Should I see a doctor?",
+            "Are there home remedies?",
+            "How long do these symptoms typically last?"
+        ];
+
+        if (suggestions.length > 0) {
+            const sugDiv = document.createElement("div");
+            sugDiv.className = "suggestions-container";
+            sugDiv.innerHTML = '<small style="color: var(--text-light)">Suggested follow-ups:</small>';
+
+            suggestions.forEach((s, i) => {
+                let btn = document.createElement("button");
+                btn.className = "suggestion-btn";
+                btn.innerText = s;
+                btn.onclick = () => {
+                    window.location.href=`/chat_redirect?category=Symptoms&message=${encodeURIComponent(s)}`;
+                };
+                sugDiv.appendChild(btn);
+                setTimeout(() => btn.classList.add("show"), 100 * i);
+            });
+
+            container.appendChild(sugDiv);
+        }
+    } catch (e) {
+        console.error("Error with suggestions:", e);
+    }
+}
+
+// Load history
+function loadHistory(userMsg, aiMsg) {
+    let chatBox = document.getElementById("symptom-chat-box");
+    chatBox.innerHTML += `<div class='message user-message'><b>You:</b> ${userMsg}</div>`;
+    chatBox.innerHTML += `<div class='message ai-message'><b>AI:</b> ${aiMsg}</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// On load: populate history
+window.onload = function() {
+    let chatBox = document.getElementById("symptom-chat-box");
+    {% for chat in chats %}
+        chatBox.innerHTML += `<div class="message user-message"><b>You:</b> {{ chat.user_message|tojson }}</div>`;
+        chatBox.innerHTML += `<div class="message ai-message">${marked.parse({{ chat.ai_response|tojson }})}</div>`;
+    {% endfor %}
+
+    // Scroll to bottom
+    setTimeout(() => {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }, 100);
+};
+</script>
+
+{% endblock %}

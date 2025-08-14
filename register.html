@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+:root {
+    --primary: #4F46E5;
+    --primary-light: #818CF8;
+    --primary-dark: #3730A3;
+    --secondary: #10B981;
+    --accent: #F59E0B;
+    --danger: #EF4444;
+    --text: #1F2937;
+    --text-light: #6B7280;
+    --bg-gradient: linear-gradient(135deg, #F0FDF4 0%, #F0F9FF 100%);
+    --card-bg: rgba(255, 255, 255, 0.98);
+    --border: rgba(209, 213, 219, 0.3);
+}
+
+.register-container {
+    max-width: 480px;
+    margin: 3rem auto;
+    padding: 0 1rem;
+}
+
+.register-card {
+    background: var(--card-bg);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(31, 41, 55, 0.1);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    animation: fadeIn 0.6s cubic-bezier(0.39, 0.575, 0.565, 1);
+}
+
+.register-header {
+    padding: 2rem 2rem 1.5rem 2rem;
+    background: linear-gradient(135deg, var(--secondary) 0%, #059669 100%);
+    color: white;
+    text-align: center;
+}
+
+.register-header h1 {
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-size: 1.75rem;
+}
+
+.register-header p {
+    margin: 0.5rem 0 0 0;
+    opacity: 0.9;
+    font-weight: 400;
+}
+
+.register-body {
+    padding: 2rem;
+}
+
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: var(--text);
+    font-size: 0.95rem;
+}
+
+.form-control {
+    padding: 0.875rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: rgba(249, 250, 251, 0.7);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+.password-requirements {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-top: -0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn {
+    padding: 1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--secondary) 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(16, 185, 129, 0.25);
+}
+
+.register-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: var(--text-light);
+    font-size: 0.95rem;
+}
+
+.register-footer a {
+    color: var(--secondary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.register-footer a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-left: 4px solid var(--danger);
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-4px); }
+    40%, 60% { transform: translateX(4px); }
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .register-container {
+        margin: 1.5rem;
+    }
+
+    .register-card {
+        border-radius: 16px;
+    }
+
+    .register-header {
+        padding: 1.5rem 1rem;
+    }
+
+    .register-body {
+        padding: 1.5rem;
+    }
+
+    .register-header h1 {
+        font-size: 1.5rem;
+    }
+}
+</style>
+
+<div class="register-container">
+    <div class="register-card">
+        <div class="register-header">
+            <h1><i class="bi bi-person-plus"></i> Create Account</h1>
+            <p>Join your AI Health Assistant today</p>
+        </div>
+
+        <div class="register-body">
+            {% if error %}
+            <div class="error-message">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>{{ error }}</span>
+            </div>
+            {% endif %}
+
+            <form method="POST" class="register-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="Choose a username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Create a password" required>
+                    <div class="password-requirements">
+                        <i class="bi bi-info-circle"></i>
+                        <span>Minimum 8 characters with at least 1 number</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Re-enter your password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-person-check"></i> Create Account
+                </button>
+            </form>
+
+            <div class="register-footer">
+                Already have an account? <a href="/login">Sign in here</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+{% endblock %}

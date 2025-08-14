@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Users</h5>
+                <p class="card-text">{{ total_users }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Chats</h5>
+                <p class="card-text">{{ total_chats }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4>Recent Chats</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>User ID</th>
+            <th>Category</th>
+            <th>User Message</th>
+            <th>AI Response</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for chat in recent_chats %}
+        <tr>
+            <td>{{ chat.user_id }}</td>
+            <td>{{ chat.category }}</td>
+            <td>{{ chat.user_message }}</td>
+            <td>{{ chat.ai_response }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h4>Category Usage</h4>
+<canvas id="categoryChart" width="400" height="200"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+var ctx = document.getElementById('categoryChart').getContext('2d');
+var categoryChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{ categories_dict.keys()|list }},
+        datasets: [{
+            label: 'Number of Chats',
+            data: {{ categories_dict.values()|list }},
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: { scales: { y: { beginAtZero: true } } }
+});
+</script>
+{% endblock %}
